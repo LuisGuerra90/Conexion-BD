@@ -2,6 +2,7 @@
 #include <sql.h>
 #include <sqlext.h>
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -28,9 +29,9 @@ int main() {
         ret = SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
 
         // Imprimir encabezados de la tabla
-        cout << "+---------------+-----------+------------+------------+-----------+-----------+-------------------+-----------------------+-----------------------+-----------+" << endl;
-        cout << "| Num_Empleado  | Nombre    | Ap_Paterno | Ap_Materno | Fecha_Nac | RFC       | C_trabajo         | Puesto                | Des_Puesto            | Directivo |" << endl;
-        cout << "+---------------+-----------+------------+------------+-----------+-----------+-------------------+-----------------------+-----------------------+-----------+" << endl;
+        cout << "+--------------+----------------------------+------------+------------+-------------------+----------------------+------------------------------+-----------+" << endl;
+        cout << "| Num_Empleado | Nombre Completo            | Fecha_Nac  | RFC        | C_trabajo         | Puesto               | Des_Puesto                   | Directivo |" << endl;
+        cout << "+--------------+----------------------------+------------+------------+-------------------+----------------------+------------------------------+-----------+" << endl;
         
         // Ejemplo de consulta SELECT
         ret = SQLExecDirect(hStmt, (SQLWCHAR*)L"SELECT * FROM Datos_Empleados", SQL_NTS);
@@ -57,8 +58,35 @@ int main() {
                 SQLGetData(hStmt, 9, SQL_C_CHAR, desc_puesto, sizeof(desc_puesto), NULL);
                 SQLGetData(hStmt, 10, SQL_C_CHAR, directivo, sizeof(directivo), NULL);
 
-                cout <<"|" <<num_empleado << "              | " << name << "     | " << last_name << "  |   " << slast_name << " |  " << fecha_n << " | " << rfc << "  | " << c_trabajo << "    | " << puesto << " | " << desc_puesto << " | " << directivo << endl;
+                // Concatenar nombre y apellido paterno
+                string last_names = string((char*)last_name) + " " + string((char*)slast_name);
+                string full_name = string((char*)name) + " " + string(last_names);
+               
+                //Convertir BIT a String
+                string dir = string((char*)directivo);
+                string respuesta;
 
+                if (dir == "1") {
+                    respuesta = "SI";
+                }
+                else
+                {
+                    respuesta = "NO";
+                }
+                
+                // Imprimir datos de la fila con alineación
+                cout << "| " << setw(13) << left << num_empleado
+                     << "| " << setw(27) << left << full_name
+                     << "| " << setw(11) << left << fecha_n
+                     << "| " << setw(11) << left << rfc
+                     << "| " << setw(18) << left << c_trabajo
+                     << "| " << setw(21) << left << puesto
+                     << "| " << setw(29) << left << desc_puesto
+                     << "| " << setw(9) << left << respuesta << " |" << endl;
+                
+
+                //cout <<"|" <<num_empleado << "              | " << name << "     | " << last_name << "  |   " << slast_name << " |  " << fecha_n << " | " << rfc << "  | " << c_trabajo << "    | " << puesto << " | " << desc_puesto << " | " << directivo << endl;
+                cout << "+--------------+----------------------------+------------+------------+-------------------+----------------------+------------------------------+-----------+" << endl;
             }
         }
 
@@ -82,9 +110,9 @@ int main() {
             ret = SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
 
             // Imprimir encabezados de la tabla
-            cout << "+---------------+-------------+------------------------+" << endl;
-            cout << "| No. Empleado  | No. Centro  | Prestacion Combustible |" << endl;
-            cout << "+---------------+-------------+------------------------+" << endl;        
+            cout << "+--------------+------------+------------------------+" << endl;
+            cout << "| No. Empleado | No. Centro | Prestacion Combustible |" << endl;
+            cout << "+--------------+------------+------------------------+" << endl;        
 
             // Ejemplo de consulta SELECT
             ret = SQLExecDirect(hStmt, (SQLWCHAR*)L"SELECT * FROM Datos_Directivos", SQL_NTS);
@@ -98,8 +126,25 @@ int main() {
                     SQLGetData(hStmt, 2, SQL_C_LONG, &num_centro, 0, NULL);
                     SQLGetData(hStmt, 3, SQL_C_CHAR, prestacion_gasolina, sizeof(prestacion_gasolina), NULL);
 
-                    cout << "| " << num_empleado  << "             | " << num_centro << "        | " << prestacion_gasolina << "                       | " << endl;
-                    cout << "+---------------+-------------+------------------------+" << endl;
+                    //Convertir BIT a String
+                    string p_gas = string((char*)prestacion_gasolina);
+                    string respuesta2;
+
+                    if (p_gas == "1") {
+                        respuesta2 = "SI";
+                    }
+                    else
+                    {
+                        respuesta2 = "NO";
+                    }
+
+                    // Imprimir datos de la fila con alineación
+                    cout << "| " << setw(13) << left << num_empleado
+                         << "| " << setw(11) << left << num_centro
+                         << "| " << setw(22) << left << respuesta2 << " |" << endl;
+
+                   // cout << "| " << num_empleado  << "             | " << num_centro << "        | " << prestacion_gasolina << "                       | " << endl;
+                    cout << "+--------------+------------+------------------------+" << endl;
                 }
             }
 
